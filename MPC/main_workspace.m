@@ -15,8 +15,8 @@ subj.coupled = false;
 
 % Define a arm.  We'll start with the 2 degree of freedom planar arm
 arm = arm_2DOF(subj);
-arm.draw;
-
+% arm.draw;
+intModel = arm_2DOF(subj); % internal model
 
 
 %% Compute workspace:
@@ -26,7 +26,7 @@ arm.draw;
 % at the shoulder.
 
 % Specify the radius of the circle designating target locations
-r = 3; % m
+r = 9; % m
 
 % Save the locations of the arm and hand throughout the simulation and the
 % computed control values
@@ -34,10 +34,10 @@ histories.u = zeros(length(arm.u.min), 1);
 histories.x = arm.x.val;
 histories.y = fwdKin( arm );
 
-for th = ( 0:5:360 )*pi/180
+for th = ( 0:10:360 )*pi/180
     % Give us a message so we know what's going on
-    display(['Reach direction: theta = ' num2str(th*180/pi) 'Deg'])
-    display('_________________________________')
+    disp(['Reach direction: theta = ' num2str(th*180/pi) 'Deg'])
+    disp('_________________________________')
     i = 0;
     x_diff = diff( histories.x' );
     
@@ -55,12 +55,18 @@ for th = ( 0:5:360 )*pi/180
     % radians/second) as long as the resulting state is within the joint
     % limits.  This loop also assumes that the movement will take at least 0.1
     % seconds.
-    while arm.withinLimits && ( max(abs( x_diff(end,:))) > 1e-2  ...
+    while arm.withinLimits && ( max(abs( x_diff(end,:))) > 1e-3  ...
             || i*arm.Ts < 0.1 )
 
+%         movt.ref = ref;
+%         movt.space = 'task';
+%         data = simulate(movt, arm, intModel);
+        
+        
         % Compute the optimal control value
         try
-            u_opt = control( arm, i*arm.Ts, ref, 'cartesian' );
+%             u_opt = control( arm, i*arm.Ts, ref, 'cartesian' );
+            u_opt = control( arm,  ref, 'cartesian' );
             % Note: The finite differences method used to linearize the
             % dynamics may cause joint limitation violation warnings even when
             % the actual posture satisfies the constraints.
@@ -74,12 +80,19 @@ for th = ( 0:5:360 )*pi/180
             break
         end
 
-        % Implement the optimal torques on the arm.
+        %%% Implement the optimal torques on the arm.
+        % set torque to zero if haven't planned that far in advance;
+        % otherwise, grab torque from preplanned trajectory
+        if isempty(u_opt)
+            u_opt = zeros(size(arm.u.min));
+        else
+            u_opt = u_opt(:,1);
+        end
         zNext = actuate(arm, u_opt);
 
         % Sense the resulting sensory outputs and estimate the next state.
         x_sens = sense(arm, zNext);
-        arm.draw
+%         arm.draw
     
         % Save new control, arm configuration, and hand location values
         histories.u = [ histories.u, u_opt ];
@@ -88,7 +101,7 @@ for th = ( 0:5:360 )*pi/180
         
         % Let us know how long the simulation is taking and how much things
         % are changing at each step
-        display(['Time = ' num2str(i*arm.Ts) 'sec'])
+        disp(['Time = ' num2str(i*arm.Ts) 'sec'])
 %         display(['Delta q = [' num2str( diff( histories.x')) ...
 %             ' ]''' ])
         
@@ -133,6 +146,10 @@ subplot(3,1,3)
 figure
 % P = Polyhedron( histories.y(1:2,:)' );
 % plot(P)
+plot(histories.y(1,:), histories.y(2,:), 'bx')
+[k,area]=boundary(histories.y(1:2,:)', 1);
+hold on
+plot(histories.y(1,k), histories.y(2,k))
     box off
     axis equal
     title 'Hand workspace'
