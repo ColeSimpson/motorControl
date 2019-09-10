@@ -1,51 +1,29 @@
-clear; clc; close all;
-set(0,'DefaultFigureWindowStyle','docked')
-%%% This script computes the workspace for the simulated arm
+function data = reach(arm, intModel, ref)
 
-%% Setup arm and MPC toolbox
-% Add all include folders to the working directory
-addpath( genpath([pwd '/include']));
+if nargin<3
+    % Subject characteristics
+    subj.M = 70;    % kg
+    subj.H = 1.80;  % meters
+    subj.hand = 'right';
+    subj.Td = 0;
+    subj.coupled = false;
 
-% Subject characteristics
-subj.M = 70;    % kg
-subj.H = 1.80;  % meters
-subj.hand = 'right';
-subj.Td = 0;
-subj.coupled = false;
+    % Define a arm.  We'll start with the 2 degree of freedom planar arm
+    arm = arm_2DOF(subj);
+    % arm.draw;
+    intModel = arm_2DOF(subj); % internal model
+    
+    
+    ref = [ .3; 0.3; 0; 0 ];
+end
 
-% Define a arm.  We'll start with the 2 degree of freedom planar arm
-arm = arm_2DOF(subj);
-% arm.draw;
-intModel = arm_2DOF(subj); % internal model
-
-
-%% Compute workspace:
-% This function computes the workspace of the arm by driving the arm arm
-% to reach as far as it can in several directions.  We chose to reach
-% towards several points located on a circle of radius, r = 3 m, centered
-% at the shoulder.
-
-% Specify the radius of the circle designating target locations
-r = 9; % m
 
 % Save the locations of the arm and hand throughout the simulation and the
 % computed control values
 data.u = zeros(length(arm.u.min), 1);
 data.x = arm.x.val;
 data.y = fwdKin( arm );
-
-
-
-% Give us a message so we know what's going on
 x_diff = diff( data.x' );
-
-% Update the position of the reference
-ref = [ .3; 0.3; 0; 0 ];
-i = 0;
-
-% Reset the arm so we start from the same initial posture at the
-% beginning of each reach.
-arm = arm_2DOF(subj);
 
 
 %% Simulate reach.
@@ -54,6 +32,7 @@ arm = arm_2DOF(subj);
 % radians/second) as long as the resulting state is within the joint
 % limits.  This loop also assumes that the movement will take at least 0.1
 % seconds.
+i = 0;
 while arm.withinLimits && ( max(abs( x_diff(end,:))) > 1e-3  ...
         || i*arm.Ts < 0.1 )
 
