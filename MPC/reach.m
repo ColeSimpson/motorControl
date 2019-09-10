@@ -1,128 +1,3 @@
-% close all
-% clear
-% clc
-% 
-% % add folders to path
-% addpath(genpath([pwd '/include']));
-% 
-% % define subject
-% subj.hand = 'right'; % hand being tested
-% subj.M = 70;         % mass [kg]
-% subj.H = 1.80;       % height [meters]
-% 
-% 
-% % define subject's physical arm & internal arm model (mental)
-% arm = arm_2DOF(subj);
-% intModel = arm_2DOF(subj);
-% 
-% 
-% % extract arm parameters
-% nInputs = length(arm.u.val);
-% nJoints = length(arm.q.val);
-% 
-% 
-% 
-% % define movement parameters
-% T = 1;                       % total time to simulate [sec]
-% movt.t = 0:arm.Ts:T;         % time vector [sec]
-% r = 0.35;                    % reach distance [m]
-% th = [0];            % reach angles [deg]
-% origin1 = [-0.15;0.3;0];     % origin 1 (arbitrary) [m]
-% origin2 = [-0.18;0.56;0];    % origin 2, to match (Beer, 2000) [m]
-% origin3 = [-0.15;0.6;0];     % origin 3 (less arbitrary) [m]
-% p_i = origin1;               % initial position [m]
-% v_i = [0;0;0];               % initial velocity [m/s]
-% y_i = [p_i;v_i];             % initial state, in Cartesian coordinates [m,m/s]
-% [x_i,~,~] = arm.invKin(y_i); % initial state, in joint coordinates [rad,rad/s]
-% 
-% 
-% movt.space = 'task';         % space in which to track reference ('joint' or 'task')
-%    
-%     
-% for i = 1:length(th)
-% 
-%     % define movement reference trajectory
-%     p_f = p_i + r*[cosd(th(i));sind(th(i));0]; % desired end position [m]
-%     v_f = [0;0;0];                             % desired end velocity [m/s]
-%     y_f = [p_f;v_f];                           % desired end state, in Cartesian coordinates [m,m/s]
-%     [x_f,~,~] = arm.invKin(y_f);               % desired end state, in joint coordinates [rad,rad/s]
-%     switch movt.space
-%         case 'joint'
-%             movt.ref = repmat(x_f,1,length(movt.t)); % joint-space reference to track [rad,rad/s]
-%         case 'task'
-%             movt.ref = repmat(y_f,1,length(movt.t)); % task-space reference to track [m,m/s]
-%         otherwise
-%             movt.space = 'task';
-%             movt.ref = repmat(y_f,1,length(movt.t)); % task space by default
-%     end
-% 
-%     % reset model state variables to match initial conditions for movement
-%     % NOTE: internal model's state estimates are grounded by vision (i.e.,
-%     % ----  assuming perfect vision, they match the arm's actual state)
-%     arm.u.val = zeros(nInputs,1);
-%     arm.uReflex = zeros(nJoints,1);
-%     arm.x.val = [x_i;zeros(nInputs,1)];
-%     arm.q.val = x_i(1:nJoints);
-%     arm.q0 = arm.q.val;
-%     arm.y.val = arm.fwdKin;
-%     nDelay = ceil(arm.Td/arm.Ts);
-%     arm.z.val = repmat(arm.x.val, nDelay+1, 1);
-%     arm.P = diag(1e-6*ones(length(arm.z.val),1));
-% 
-%     intModel.u.val = zeros(nInputs,1);
-%     intModel.uReflex = zeros(nJoints,1);
-%     intModel.x.val = [x_i;zeros(nInputs,1)];
-%     intModel.q.val = x_i(1:nJoints);
-%     intModel.q0 = intModel.q.val;
-%     intModel.y.val = intModel.fwdKin;
-%     nDelay = ceil(intModel.Td/intModel.Ts);
-%     intModel.z.val = repmat(intModel.x.val, nDelay+1, 1);
-%     intModel.P = diag(1e-6*ones(length(intModel.z.val),1));
-% 
-%     % simulate reach
-%     data = simulate(movt, arm, intModel);
-%     u = data.uCmd;
-%     x = data.xAct;
-%     y = data.yAct;
-%     
-%     
-%     
-%     
-%     
-%     
-%     %%%%
-%     % compute optimal control trajectory (only if enough time has passed)
-%     if movt.t(i) ~= 0 && mod(movt.t(i),arm.Tr) == 0
-%         [u_optTraj, flag] = control(intModel, movt.ref(:,i), movt.space);
-%         if flag
-%             warning('Linearization failed.')
-%             return
-%         end
-%     end
-%     
-%     % set torque to zero if haven't planned that far in advance;
-%     % otherwise, grab torque from preplanned trajectory
-%     if isempty(u_optTraj)
-%         u_opt = zeros(nInputs,1);
-%     else
-%         u_opt = u_optTraj(:,1);
-%     end
-%     
-%     % actuate arm with optimal control & sense feedback
-%     zNext = actuate(arm, u_opt);
-%     x_sens = sense(arm, zNext);
-%     
-%     % estimate current state, storing it in internal model
-%     estimate(intModel, u_opt, x_sens);
-% 
-%     % discard most recently applied control
-%     u_optTraj = u_optTraj(:,2:end);
-% 
-% end
-
-
-
-
 clear; clc; close all;
 set(0,'DefaultFigureWindowStyle','docked')
 %%% This script computes the workspace for the simulated arm
@@ -155,14 +30,14 @@ r = 9; % m
 
 % Save the locations of the arm and hand throughout the simulation and the
 % computed control values
-histories.u = zeros(length(arm.u.min), 1);
-histories.x = arm.x.val;
-histories.y = fwdKin( arm );
+data.u = zeros(length(arm.u.min), 1);
+data.x = arm.x.val;
+data.y = fwdKin( arm );
 
 
 
 % Give us a message so we know what's going on
-x_diff = diff( histories.x' );
+x_diff = diff( data.x' );
 
 % Update the position of the reference
 ref = [ .3; 0.3; 0; 0 ];
@@ -212,9 +87,9 @@ while arm.withinLimits && ( max(abs( x_diff(end,:))) > 1e-3  ...
     x_sens = sense(arm, zNext);
 
     % Save new control, arm configuration, and hand location values
-    histories.u = [ histories.u, u_opt ];
-    histories.x = [ histories.x, arm.x.val ];
-    histories.y = [ histories.y, fwdKin( arm )];
+    data.u = [ data.u, u_opt ];
+    data.x = [ data.x, arm.x.val ];
+    data.y = [ data.y, fwdKin( arm )];
 
     % Let us know how long the simulation is taking and how much things
     % are changing at each step
@@ -222,18 +97,18 @@ while arm.withinLimits && ( max(abs( x_diff(end,:))) > 1e-3  ...
 
     % Update simulation time and 
     i = i +1;
-    x_diff = diff( histories.x');
+    x_diff = diff( data.x');
 end
 
     
     
 %% Plot results
-time = linspace( 0, arm.Ts*length(histories.u(1,:)), ...
-    length(histories.u(1,:)));
+time = linspace( 0, arm.Ts*length(data.u(1,:)), ...
+    length(data.u(1,:)));
 figure
 subplot(3,1,1)
-    plot( time, histories.u(1,:), 'b', ...
-          time, histories.u(2,:), 'r')
+    plot( time, data.u(1,:), 'b', ...
+          time, data.u(2,:), 'r')
       hold on
       plot( time, ones(size(time))*arm.u.min(1), 'b:', ...
             time, ones(size(time))*arm.u.min(2), 'b:', ...
@@ -243,8 +118,8 @@ subplot(3,1,1)
     box off
     
 subplot(3,1,2)
-    plot( time, histories.x(1,:)*180/pi, 'b', ...
-          time, histories.x(2,:)*180/pi, 'r' )
+    plot( time, data.x(1,:)*180/pi, 'b', ...
+          time, data.x(2,:)*180/pi, 'r' )
    hold on
 % %   plot( time, ones(size(time))*arm.x.min(1,1)*180/pi, 'b:', ...
 %         time, ones(size(time))*arm.thLim(1,2)*180/pi, 'b:', ...
@@ -253,8 +128,8 @@ subplot(3,1,2)
     ylabel 'Joint angle trajecotires, degrees'
     box off
 subplot(3,1,3)
-    plot( time, histories.y(1,:), 'b', ...
-          time, histories.y(2,:), 'r' )
+    plot( time, data.y(1,:), 'b', ...
+          time, data.y(2,:), 'r' )
     ylabel 'Hand trajectory, m'
     xlabel 'Time (sec)'
     box off
@@ -262,10 +137,10 @@ subplot(3,1,3)
 figure
 % P = Polyhedron( histories.y(1:2,:)' );
 % plot(P)
-plot(histories.y(1,:), histories.y(2,:), 'bx')
-[k,area]=boundary(histories.y(1:2,:)', 1);
+plot(data.y(1,:), data.y(2,:), 'bx')
+[k,area]=boundary(data.y(1:2,:)', 1);
 hold on
-plot(histories.y(1,k), histories.y(2,k))
+plot(data.y(1,k), data.y(2,k))
     box off
     axis equal
     title 'Hand workspace'
