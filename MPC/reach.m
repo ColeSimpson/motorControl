@@ -1,6 +1,6 @@
-function data = reach(arm, intModel, ref)
+function [data, arm, intModel] = reach(arm, intModel, ref)
 
-if nargin<3
+if nargin<1
     % Subject characteristics
     subj.M = 70;    % kg
     subj.H = 1.80;  % meters
@@ -10,13 +10,13 @@ if nargin<3
 
     % Define a arm.  We'll start with the 2 degree of freedom planar arm
     arm = arm_2DOF(subj);
-    % arm.draw;
-    intModel = arm_2DOF(subj); % internal model
-    
-    
+end
+if nargin < 2
+    intModel = arm;
+end
+if nargin < 3
     ref = [ .3; 0.3; 0; 0 ];
 end
-
 
 % Save the locations of the arm and hand throughout the simulation and the
 % computed control values
@@ -81,47 +81,47 @@ end
 
     
     
-%% Plot results
-time = linspace( 0, arm.Ts*length(data.u(1,:)), ...
-    length(data.u(1,:)));
-figure
-subplot(3,1,1)
-    plot( time, data.u(1,:), 'b', ...
-          time, data.u(2,:), 'r')
-      hold on
-      plot( time, ones(size(time))*arm.u.min(1), 'b:', ...
-            time, ones(size(time))*arm.u.min(2), 'b:', ...
-            time, ones(size(time))*arm.u.max(1), 'r:', ...
-            time, ones(size(time))*arm.u.max(2), 'r:')
-    ylabel 'Optimal joint torques, N-m'
-    box off
-    
-subplot(3,1,2)
-    plot( time, data.x(1,:)*180/pi, 'b', ...
-          time, data.x(2,:)*180/pi, 'r' )
-   hold on
-% %   plot( time, ones(size(time))*arm.x.min(1,1)*180/pi, 'b:', ...
-%         time, ones(size(time))*arm.thLim(1,2)*180/pi, 'b:', ...
-%         time, ones(size(time))*arm.thLim(2,1)*180/pi, 'r:', ...
-%         time, ones(size(time))*arm.thLim(2,2)*180/pi, 'r:')
-    ylabel 'Joint angle trajecotires, degrees'
-    box off
-subplot(3,1,3)
-    plot( time, data.y(1,:), 'b', ...
-          time, data.y(2,:), 'r' )
-    ylabel 'Hand trajectory, m'
-    xlabel 'Time (sec)'
-    box off
-    
-figure
-% P = Polyhedron( histories.y(1:2,:)' );
-% plot(P)
-plot(data.y(1,:), data.y(2,:), 'bx')
-[k,area]=boundary(data.y(1:2,:)', 1);
-hold on
-plot(data.y(1,k), data.y(2,k))
-    box off
-    axis equal
-    title 'Hand workspace'
-    xlabel 'x'
-    ylabel 'y'
+% %% Plot results
+% time = linspace( 0, arm.Ts*length(data.u(1,:)), ...
+%     length(data.u(1,:)));
+% figure
+% subplot(3,1,1)
+%     plot( time, data.u(1,:), 'b', ...
+%           time, data.u(2,:), 'r')
+%       hold on
+%       plot( time, ones(size(time))*arm.u.min(1), 'b:', ...
+%             time, ones(size(time))*arm.u.min(2), 'b:', ...
+%             time, ones(size(time))*arm.u.max(1), 'r:', ...
+%             time, ones(size(time))*arm.u.max(2), 'r:')
+%     ylabel 'Optimal joint torques, N-m'
+%     box off
+%     
+% subplot(3,1,2)
+%     plot( time, data.x(1,:)*180/pi, 'b', ...
+%           time, data.x(2,:)*180/pi, 'r' )
+%    hold on
+% % %   plot( time, ones(size(time))*arm.x.min(1,1)*180/pi, 'b:', ...
+% %         time, ones(size(time))*arm.thLim(1,2)*180/pi, 'b:', ...
+% %         time, ones(size(time))*arm.thLim(2,1)*180/pi, 'r:', ...
+% %         time, ones(size(time))*arm.thLim(2,2)*180/pi, 'r:')
+%     ylabel 'Joint angle trajecotires, degrees'
+%     box off
+% subplot(3,1,3)
+%     plot( time, data.y(1,:), 'b', ...
+%           time, data.y(2,:), 'r' )
+%     ylabel 'Hand trajectory, m'
+%     xlabel 'Time (sec)'
+%     box off
+%     
+% figure
+% % P = Polyhedron( histories.y(1:2,:)' );
+% % plot(P)
+% plot(data.y(1,:), data.y(2,:), 'bx')
+% [k,area]=boundary(data.y(1:2,:)', 1);
+% hold on
+% plot(data.y(1,k), data.y(2,k))
+%     box off
+%     axis equal
+%     title 'Hand workspace'
+%     xlabel 'x'
+%     ylabel 'y'
