@@ -49,6 +49,7 @@ nInputs = length(arm.u.val);
 xNext = xNext + ...
     arm.Ts * (arm.motrNoise*[zeros(2*nJoints,1);ones(nInputs,1)]) .* rand(nStates,1);
 
+
 % check for direction changes at each joint
 vCurr = arm.x.val(nJoints+1:2*nJoints);
 vNext = xNext(nJoints+1:2*nJoints);

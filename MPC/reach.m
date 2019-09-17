@@ -9,13 +9,13 @@ if nargin<1
     subj.coupled = false;
 
     % Define a arm.  We'll start with the 2 degree of freedom planar arm
-    arm = arm_2DOF(subj);
+    arm = arm_4DOF(subj);
 end
 if nargin < 2
     intModel = arm;
 end
 if nargin < 3
-    ref = [ .3; 0.3; 0; 0 ];
+    ref = [ .3; 0.3; 0; 0; 0; 0 ];
 end
 
 % Save the locations of the arm and hand throughout the simulation and the

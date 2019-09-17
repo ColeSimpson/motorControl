@@ -58,7 +58,7 @@ model.y.reference = 'free';
 
 % set (hard) constraints
 model.x.min = armModel.x.min;   model.x.max = armModel.x.max;
-model.u.min = armModel.u.min;   model.u.max = armModel.strength*armModel.u.max;
+model.u.min = armModel.u.min;   model.u.max = armModel.strength.*armModel.u.max;
 
 % define cost function (NOTE: this assumes that half of the outputs are
 % positions and half are velocities)

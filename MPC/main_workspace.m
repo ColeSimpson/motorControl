@@ -13,12 +13,6 @@ subj.hand = 'right';
 subj.Td = 0;
 subj.coupled = false;
 
-% Define a arm.  We'll start with the 2 degree of freedom planar arm
-arm = arm_4DOF(subj);
-intModel = arm_4DOF(subj); % internal model
-% arm.draw;
-
-
 %% Compute workspace:
 % This function computes the workspace of the arm by driving the arm arm
 % to reach as far as it can in several directions.  We chose to reach
@@ -30,6 +24,7 @@ r = 20; % m
 
 % Save the locations of the arm and hand throughout the simulation and the
 % computed control values
+arm = arm_2DOF(subj);
 histories.u = zeros(length(arm.u.min), 1);
 histories.x = arm.x.val;
 histories.y = fwdKin( arm );

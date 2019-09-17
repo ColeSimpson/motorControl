@@ -77,8 +77,7 @@ classdef arm_4DOF < handle
                 arm.r2 = 0.827*arm.l2;
                 arm.I1 = arm.m1*arm.r1^2;
                 arm.I2 = arm.m2*arm.r2^2;
-                arm.tau = 0.06;                  % (Crevecoeur, 2013)
-                arm.B = 0.25*eye(4) + 0.25*ones(4,4); % (Crevecoeur, 2013)
+                arm.B = 0.25*ones(4,4) + 0.25*eye(4); % (Crevecoeur, 2013)
 
                 % initialize mutable properties to default values
                 arm.Ts = 0.001;
@@ -97,10 +96,12 @@ classdef arm_4DOF < handle
                 % set default deficits
                 arm.strength = 1;
                 arm.coupling = [-1, 1, 0, 0, 0, 0, 0, 0;
-                                 0, 0, -1, 1, 0, 0, 0, 0;
-                                 0, 0, 0, 0,-1, 1, 0, 0;
-                                 0, 0, 0, 0, 0, 0,-1, 1];
-                 spasticData(:,:,2) = [[-5.70    73.37]*toRad;               % (Levin & Feldman, 2003)
+     0 ,    0,    -1,     1,     0,     0,    0,     0;
+    0,     0,     0,     0,    -1,     1,     0,     0;
+     0,     0,    0,     0,     0,     0,    -1,     1];
+     
+     [-1, 1, 0, 0; 0, 0, -1, 1]
+                spasticData(:,:,2) = [[-5.70    73.37]*toRad;               % (Levin & Feldman, 2003)
                                       [0        0.25];                      % (Levin & Feldman, 2003)
                                       [2.22e-4  1.62e-4]*(1/toRad)*subj.M;  % (McCrea, 2003)
                                       [7.12e-5  2.47e-5]*(1/toRad)*subj.M]; % (McCrea, 2003)
@@ -152,7 +153,7 @@ classdef arm_4DOF < handle
                 arm.shld = [0;0;0];
                 arm.q.val = mean([arm.q.min, arm.q.max], 2);
                 arm.u.val = zeros(size(arm.u.max));
-                arm.x.val = [arm.q.val; zeros(4,1); zeros(size(arm.u.val))];
+                arm.x.val = [arm.q.val; zeros(4,1)];
                 [arm.y.val, arm.elbw, arm.inWS] = arm.fwdKin;
                 nDelay = ceil(arm.Td/arm.Ts);
                 arm.z.val = repmat(arm.x.val, nDelay+1, 1); % (nDelay + 1) includes current state
