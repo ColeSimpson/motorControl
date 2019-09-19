@@ -20,7 +20,7 @@ subj.coupled = false;
 % at the shoulder.
 
 % Specify the radius of the circle designating target locations
-r = 20; % m
+r = 2; % m
 
 % Save the locations of the arm and hand throughout the simulation and the
 % computed control values
@@ -29,7 +29,7 @@ histories.u = zeros(length(arm.u.min), 1);
 histories.x = arm.x.val;
 histories.y = fwdKin( arm );
 
-for th = ( 0:180:360 )*pi/180
+for th = ( 0:180:355 )*pi/180
     % Give us a message so we know what's going on
     disp(['Reach direction: theta = ' num2str(th*180/pi) 'Deg'])
     disp('_________________________________')

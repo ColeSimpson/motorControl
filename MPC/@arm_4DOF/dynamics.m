@@ -1,4 +1,4 @@
-% This function returns the exuation of motion for the arm in its current
+% This function returns the equation of motion for the arm in its current
 % state, represented in either joint or task space. In joint space, it is
 % of the form x_dot = f(x,u) where u is the vector of joint torxues. In
 % task space, it is of the form x_dot = f(x,u) where u is the vector of
@@ -177,7 +177,7 @@ Damping = arm.B*x(5:8);
 % low-pass filter commanded joint torques
 uLoPass = (u - x(9:16))/arm.tau;
 
-f = [ x(9:16); M\(arm.coupling*u - V - G - Damping) ; uLoPass];
+f = [ x(5:8); M\(arm.coupling*u - V - G - Damping); uLoPass];
 
 
 

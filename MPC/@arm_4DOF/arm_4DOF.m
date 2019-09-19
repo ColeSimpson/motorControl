@@ -112,14 +112,14 @@ classdef arm_4DOF < handle
                 arm.motrNoise = 0.02; % (Izawa, 2008)
                 posNoise = 3;         % (Yousif, 2015)
                 velNoise = 0.1;
-                arm.sensNoise = [posNoise; posNoise; velNoise; velNoise]*toRad;
+                arm.sensNoise = [posNoise; posNoise; posNoise; posNoise; ...
+                    velNoise; velNoise; velNoise; velNoise]*toRad;
                 biasData(:,:,1) = [25 -4;40 -2;55 0]*toRad; % (Yousif, 2015)
-                biasData(:,:,2) = [80 5;95 7;100 8]*toRad;  % (Yousif, 2015)
+                biasData(:,:,2) = [25 -4;40 -2;55 0]*toRad; % (Yousif, 2015)
+                biasData(:,:,3) = [25 -4;40 -2;55 0]*toRad; % (Yousif, 2015)
+                biasData(:,:,4) = [80 5;95 7;100 8]*toRad;  % (Yousif, 2015)
                 arm.sensBias = defineBiasFunc(biasData);
-%                 biasData(:,:,2) = [20 0;40 0;65 0]*toRad;
-%                 biasData(:,:,4) = [30 0;60 0;80 0]*toRad;
-%                 arm.sensBias = defineBiasFunc(biasData);
-                
+
                 
                 % set default joint limits
                 th1Min = -30*toRad;     % Min. shoulder extension [rad]
@@ -132,8 +132,8 @@ classdef arm_4DOF < handle
                 th4Max = 170*toRad;     % Max elbow extension [rad]
                 arm.q.min = [ th1Min; th2Min; th3Min; th4Min ];
                 arm.q.max = [ th1Max; th2Max; th3Max; th4Max ];
-                arm.x.min = [ arm.q.min; -inf*ones(4,1) ]; % no explicit velocity limits
-                arm.x.max = [ arm.q.max; inf*ones(4,1) ]; 
+                arm.x.min = [ arm.q.min; -inf*ones(12,1) ]; % no explicit velocity limits
+                arm.x.max = [ arm.q.max; inf*ones(12,1) ]; 
                 
                 % set default actuator limits
                 torq1Max = 85;     % shoulder flexion torque limits [Nm]
@@ -151,6 +151,7 @@ classdef arm_4DOF < handle
                 % workspace
                 arm.shld = [0;0;0];
                 arm.q.val = mean([arm.q.min, arm.q.max], 2);
+                arm.q0 = arm.q.val;
                 arm.u.val = zeros(size(arm.u.max));
                 arm.x.val = [arm.q.val; zeros(4,1); zeros(size(arm.u.val))];
                 [arm.y.val, arm.elbw, arm.inWS] = arm.fwdKin;
