@@ -1,4 +1,4 @@
-function [data, arm, intModel] = reach(arm, intModel, ref)
+function [data, arm, intModel] = reach(arm, intModel, ref, saveFname)
 
 if nargin<1
     % Subject characteristics
@@ -77,6 +77,11 @@ while arm.withinLimits && ( max(abs( x_diff(end,:))) > 1e-3  ...
     % Update simulation time and 
     i = i +1;
     x_diff = diff( data.x');
+end
+
+
+if nargin == 4
+    save( saveFname, 'data')
 end
 
     
