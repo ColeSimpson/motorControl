@@ -22,7 +22,7 @@ subj.coupled = false;
 % Specify the radius of the circle designating target locations
 r = 2; % m
 
-parfor i = 0:35
+for i = 5:35
     th = i*10*pi/180;
     
     % Give us a message so we know what's going on

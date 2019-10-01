@@ -81,8 +81,8 @@ classdef arm_4DOF < handle
                 arm.B = 0.25*eye(4) + 0.25*ones(4,4); % (Crevecoeur, 2013)
 
                 % initialize mutable properties to default values
-                arm.Ts = 0.001;
-                arm.Tr = 0.1;  % (Wagner & Smith, 2008)
+                arm.Ts = 0.01;
+                arm.Tr = 0.03;  % (Wagner & Smith, 2008)
                 arm.Td = 0.06; % (Crevecoeur, 2013)
                 arm.coupling = eye(4);
                 arm.motrNoise = 0.0001;
