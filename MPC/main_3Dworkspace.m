@@ -29,7 +29,7 @@ histories.u = zeros(length(arm.u.min), 1);
 histories.x = arm.x.val;
 histories.y = fwdKin( arm );
 
-for th = ( 0:10:355 )*pi/180
+for th = ( 0:180:355 )*pi/180
     % Give us a message so we know what's going on
     disp(['Reach direction: theta = ' num2str(th*180/pi) 'Deg'])
     disp('_________________________________')
