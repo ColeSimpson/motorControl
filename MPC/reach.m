@@ -68,8 +68,9 @@ while arm.withinLimits && ( max(abs( x_diff(end,:))) > 1e-3  ...
     % Save new control, arm configuration, and hand location values
     data.u = [ data.u, u_opt ];
     data.x = [ data.x, arm.x.val ];
-    data.y = [ data.y, fwdKin( arm )];
-
+    if withinLimits(arm, arm.x.val)
+        data.y = [ data.y, fwdKin( arm )];
+    end
     % Let us know how long the simulation is taking and how much things
     % are changing at each step
     disp(['Time = ' num2str(i*arm.Ts) 'sec'])

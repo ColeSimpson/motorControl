@@ -20,9 +20,9 @@ subj.coupled = false;
 % at the shoulder.
 
 % Specify the radius of the circle designating target locations
-r = 2; % m
+r = 1.5; % m
 
-for i = 5:35
+parfor i = 0:35
     th = i*10*pi/180;
     
     % Give us a message so we know what's going on
@@ -30,13 +30,14 @@ for i = 5:35
     disp('_________________________________')
     
     % Update the position of the reference
-    ref = [ r*cos(th); r*sin(th); 0; 0; 0;0 ];
+    ref = [ r*cos(th); r*sin(th); 0;0 ];
 
     % Reset the arm so we start from the same initial posture at the
     % beginning of each reach.
     arm = arm_4DOF(subj);
     arm.x.val = [0; 0.8; 0; 0.8; 0; 0 ;0; 0; 0; 0 ;0; 0; 0; 0 ;0; 0];
+    arm.u.max = arm.u.max *0.5;
     intModel = arm;
 
-    [data, arm] = reach(arm, intModel, ref, ['results/healthy4dof/healthy' num2str(th*180/pi) 'deg.mat']);       
+    [data, arm] = reach(arm, intModel, ref, ['results/weak4dof/weak50' num2str(th*180/pi) 'deg.mat']);       
 end

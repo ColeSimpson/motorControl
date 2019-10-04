@@ -1,1 +1,2 @@
 http://www.tbxmanager.com/package/index.xml
+http://www.tbxmanager.com/package/unstable.xml/mpt
