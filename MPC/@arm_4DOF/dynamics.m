@@ -162,10 +162,11 @@ V = B*x_dotx_dot + C*x(5:8).^2;
   
 
 % Gravity  
-G1 = -(981*arm.m2*(arm.s2*(sin(x(4))*(sin(x(1) + 1.57)*sin(x(3) - 1.57) - cos(x(1) + 1.57)*cos(x(3) - 1.57)*cos(x(2))) + cos(x(1) + 1.57)*cos(x(4))*sin(x(2))) + arm.l1*cos(x(1) + 1.57)*sin(x(2))))/100 - 9.81*arm.m1*arm.s1*cos(x(1) + 1.57)*sin(x(2));
-G2 = -9.81*arm.m2*sin(x(1) + 1.57)*(arm.l1*cos(x(2)) + arm.s2*cos(x(2))*cos(x(4)) + arm.s2*cos(x(3) - 1.57)*sin(x(2))*sin(x(4))) - 9.81*arm.m1*arm.s1*sin(x(1) + 1.57)*cos(x(2));
-G3 = 9.81*arm.m2*arm.s2*sin(x(4))*(cos(x(1) + 1.57)*cos(x(3) - 1.57) - sin(x(1) + 1.57)*cos(x(2))*sin(x(3) - 1.57));
-G4 = 9.81*arm.m2*arm.s2*(cos(x(4))*(cos(x(1) + 1.57)*sin(x(3) - 1.57) + sin(x(1) + 1.57)*cos(x(3) - 1.57)*cos(x(2))) + sin(x(1) + 1.57)*sin(x(2))*sin(x(4)));
+g = 9.81;
+G1 = -(g*100*arm.m2*(arm.s2*(sin(x(4))*(sin(x(1) + 1.57)*sin(x(3) - 1.57) - cos(x(1) + 1.57)*cos(x(3) - 1.57)*cos(x(2))) + cos(x(1) + 1.57)*cos(x(4))*sin(x(2))) + arm.l1*cos(x(1) + 1.57)*sin(x(2))))/100 - g*arm.m1*arm.s1*cos(x(1) + 1.57)*sin(x(2));
+G2 = -g*arm.m2*sin(x(1) + 1.57)*(arm.l1*cos(x(2)) + arm.s2*cos(x(2))*cos(x(4)) + arm.s2*cos(x(3) - 1.57)*sin(x(2))*sin(x(4))) - g*arm.m1*arm.s1*sin(x(1) + 1.57)*cos(x(2));
+G3 = g*arm.m2*arm.s2*sin(x(4))*(cos(x(1) + 1.57)*cos(x(3) - 1.57) - sin(x(1) + 1.57)*cos(x(2))*sin(x(3) - 1.57));
+G4 = g*arm.m2*arm.s2*(cos(x(4))*(cos(x(1) + 1.57)*sin(x(3) - 1.57) + sin(x(1) + 1.57)*cos(x(3) - 1.57)*cos(x(2))) + sin(x(1) + 1.57)*sin(x(2))*sin(x(4)));
 
 
 G = [ G1; G2; G3; G4 ];

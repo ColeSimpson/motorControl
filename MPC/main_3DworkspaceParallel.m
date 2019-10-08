@@ -20,13 +20,11 @@ subj.coupled = false;
 % at the shoulder.
 
 % Specify the radius of the circle designating target locations
-r = 2; % m
+r = 1.5; % m
 
-<<<<<<< HEAD
-for i = 35
-=======
-for i = 5:35
->>>>>>> 554dafbcaaf06bce14b691755ccc904b7e04ba9c
+% for j = 0:0.1:1
+j = 1;
+parfor i =0:35
     th = i*10*pi/180;
     
     % Give us a message so we know what's going on
@@ -40,7 +38,9 @@ for i = 5:35
     % beginning of each reach.
     arm = arm_4DOF(subj);
     arm.x.val = [0; 0.8; 0; 0.8; 0; 0 ;0; 0; 0; 0 ;0; 0; 0; 0 ;0; 0];
+    arm.u.max = arm.u.max .*j;
     intModel = arm;
 
-    [data, arm] = reach(arm, intModel, ref, ['results/healthy4dof/healthy' num2str(th*180/pi) 'deg.mat']);       
+    [data, arm] = reach(arm, intModel, ref, ['results/healthy4DOF/healthy' num2str(th*180/pi) 'deg_supported.mat']);       
 end
+% end
